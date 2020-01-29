@@ -30,9 +30,9 @@ class PhoneController extends Controller
    
               $message = [
                   'msg' => 'Phone created',
-                  'profile' => $phone
+                  'phone' => $phone
               ];
-              return response()->json($message, 200);
+              return response()->json($message, 201);
           }
    
           $message = [

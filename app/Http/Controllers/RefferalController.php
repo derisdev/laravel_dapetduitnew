@@ -8,6 +8,13 @@ use App\Refferal;
 
 class RefferalController extends Controller
 {
+
+    public function __construct() {
+        $this->middleware(
+            'jwt.auth',[
+                'except' => ['index', 'show']
+            ]);
+    }
     
 
     /**
@@ -38,9 +45,9 @@ class RefferalController extends Controller
    
               $message = [
                   'msg' => 'refferal created',
-                  'profile' => $refferal
+                  'refferal' => $refferal
               ];
-              return response()->json($message, 200);
+              return response()->json($message, 201);
           }
    
           $message = [

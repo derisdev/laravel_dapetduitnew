@@ -45,9 +45,9 @@ class RewardsController extends Controller
    
               $message = [
                   'msg' => 'rewards created',
-                  'profile' => $rewards
+                  'rewards' => $rewards
               ];
-              return response()->json($message, 200);
+              return response()->json($message, 201);
           }
    
           $message = [
