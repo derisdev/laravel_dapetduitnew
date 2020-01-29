@@ -9,6 +9,13 @@ use App\Rewards;
 class RewardsController extends Controller
 {
 
+    public function __construct() {
+        $this->middleware(
+            'jwt.auth',[
+                'except' => ['index', 'show']
+            ]);
+    }
+
 
     /**
      * Store a newly created resource in storage.
@@ -59,11 +66,6 @@ class RewardsController extends Controller
     {
         $rewards = Rewards::where('id', $id)->firstOrFail();
 
-        $rewards->view_rewardss = [
-            'href' => 'api/v1/rewards',
-            'method' => 'GET'
-        ];
-
         $response = [
             'msg' => 'rewards Information',
             'rewards' => $rewards
@@ -90,23 +92,22 @@ class RewardsController extends Controller
 
         $rewards = $request-> input('rewards');
 
-
         $rewards_class = Rewards::findOrFail($id);
 
+        $recent_rewards = Rewards::where('id', $id)->value('rewards');
+
+        $total_rewards = $recent_rewards+=$rewards;
+
+
         if (!Rewards::where('id', $id)->update([
-            'rewards' => $rewards
+            'rewards' => $total_rewards
             ])) {
             return response()->json(['msg' => 'Error During Update'], 404);
         }
 
-        $rewards_class->view_rewards_class = [
-            'href' => 'api/v1/rewards_class/' . $rewards_class->id,
-            'method' => 'GET'
-        ];
-
         $response = [
-            'msg' => 'Payment Updated',
-            'rewards' => $rewards
+            'msg' => 'Rewards Updated',
+            'rewards' => $total_rewards
         ];
 
         return response()->json($response, 200);

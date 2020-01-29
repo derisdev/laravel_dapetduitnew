@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateRefferalsTable extends Migration
+class CreateQuestionsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,12 +13,13 @@ class CreateRefferalsTable extends Migration
      */
     public function up()
     {
-        Schema::create('refferals', function (Blueprint $table) {
+        Schema::create('questions', function (Blueprint $table) {
             $table->increments('id');
-            $table->integer('user_id')->unsigned();
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
-            $table->string('refferal');
-            $table->string('invited')->default('0');
+            $table->string('phone');
+            $table->string('title');
+            $table->string('category');
+            $table->text('description');
+            $table->mediumText('screenshot');
             $table->timestamps();
         });
     }
@@ -30,6 +31,6 @@ class CreateRefferalsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('refferals');
+        Schema::dropIfExists('questions');
     }
 }

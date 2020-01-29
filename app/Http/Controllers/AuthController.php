@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 
 use App\User; 
 use App\Phone; 
+use App\Refferal; 
 
 use JWTAuth;
 use JWTAuthException;
@@ -19,7 +20,7 @@ class AuthController extends Controller
         ]);
 
         $name = $request->input('name');
-        $refferal_code = $request->input('refferal_code');
+        $refferal_input = $request->input('refferal');
         $email = $request->input('email');
         $password = $request->input('password');
 
@@ -35,11 +36,22 @@ class AuthController extends Controller
             'password' => $password
         ];
 
-        if($refferal_code!=null) {
-            $refferal = Refferal::where('refferal_code', $refferal_code)->first();
-            $rewards = $refferal->value('rewards');
+            $refferal = Refferal::where('refferal', $refferal_input)->first();
+            $recent_invited = Refferal::where('refferal', $refferal_input)->value('invited');
+            $total_invited = $recent_invited+=1;
 
-        if ($refferal!=null) {
+
+           if ($refferal!=null) {
+            if (!Refferal::where('refferal', $refferal_input)->update([
+                'invited' => $total_invited
+                ])) {
+                return response()->json([
+                    'msg' => 'Error During Update, Refferal Not found',
+                ], 404);
+            }
+
+           }
+
             if ($user->save()) {
                 $token = null;
     
@@ -65,55 +77,18 @@ class AuthController extends Controller
                     'msg' => 'User Created',
                     'user' => $user,
                     'token' => $token,
-                    'cek rewards refferer' => $rewards
+                    'invited' => $total_invited
                 ];
             return response()->json($response, 201);
             }
-        }
 
         $response = [
             'msg' => 'An error occured'
         ];
 
         return response()->json($response, 404);
-        }
 
-        else {
-            if ($user->save()) {
-
-                $token = null;
-    
-                try {
-                    if(!$token = JWTAuth::Attempt($cridentials)) {
-                        return response()->json([
-                            'msg' => 'Email or Password incorrect',
-                        ], 404);
-                    }
-                } catch (\JWTAuthException $e) {
-                    return response()->json([
-                        'msg' => 'failed_to_create_token',
-                    ], 400);
-                }
-    
-                $user->signin = [
-                    'href' => 'api/v1/user/signin',
-                    'method' => 'POST',
-                    'params' => 'email, password'
-                ];
-    
-                $response = [
-                    'msg' => 'User Created',
-                    'user' => $user,
-                    'token' => $token
-                ];
-            return response()->json($response, 201);
-            }
-            $response = [
-                'msg' => 'An error occured'
-            ];
-    
-            return response()->json($response, 404);
-        }
+        
     }
 
     public function signin(Request $request) {

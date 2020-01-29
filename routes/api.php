@@ -42,4 +42,16 @@ Route::group(['prefix' => 'v1', 'middleware' => 'cors'], function(){
         'except' => ['create', 'edit', 'index', 'destroy']
     ]);
 
+    Route::resource('notif', 'NotifController', [
+        'except' => ['create', 'edit']
+    ]);
+
+    Route::resource('feedback', 'FeedbackController', [
+        'except' => ['create', 'edit']
+    ]);
+
+    Route::resource('question', 'QuestionController', [
+        'except' => ['create', 'edit']
+    ]);
+
 });
