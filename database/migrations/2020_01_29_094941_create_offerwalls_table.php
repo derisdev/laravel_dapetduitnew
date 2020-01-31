@@ -19,7 +19,7 @@ class CreateOfferwallsTable extends Migration
             $table->string('title');
             $table->mediumText('image');
             $table->text('description');
-            $table->text('coin');
+            $table->string('coin');
             $table->timestamps();
         });
     }

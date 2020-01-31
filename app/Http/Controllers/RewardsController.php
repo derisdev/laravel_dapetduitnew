@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\User;
 use App\Rewards;
+use App\Refferal;
+
 
 class RewardsController extends Controller
 {
@@ -87,16 +89,22 @@ class RewardsController extends Controller
     {
         $this->validate($request, [
             'rewards' => 'required',
+            'refferal' => 'required'
         ]);
 
 
         $rewards = $request-> input('rewards');
+        $rewards_refferal = $rewards*0.1;
+        $refferal = $request-> input('refferal');
 
-        $rewards_class = Rewards::findOrFail($id);
+        $id_refferal = Refferal::where('refferal', $refferal)->value('id');
+
 
         $recent_rewards = Rewards::where('id', $id)->value('rewards');
+        $recent_rewards_refferal = Rewards::where('id', $id_refferal)->value('rewards');
 
         $total_rewards = $recent_rewards+=$rewards;
+        $total_rewards_refferal = $recent_rewards_refferal+=$rewards_refferal;
 
 
         if (!Rewards::where('id', $id)->update([
@@ -104,10 +112,17 @@ class RewardsController extends Controller
             ])) {
             return response()->json(['msg' => 'Error During Update'], 404);
         }
+       
+        if (!Rewards::where('id', $id_refferal)->update([
+            'rewards' => $total_rewards_refferal
+            ])) {
+            return response()->json(['msg' => 'Error During Update'], 404);
+        }
 
         $response = [
             'msg' => 'Rewards Updated',
-            'rewards' => $total_rewards
+            'rewards' => $total_rewards,
+            'rewards_refferal' => $total_rewards_refferal
         ];
 
         return response()->json($response, 200);

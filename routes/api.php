@@ -50,8 +50,4 @@ Route::group(['prefix' => 'v1', 'middleware' => 'cors'], function(){
         'except' => ['create', 'edit']
     ]);
 
-    Route::resource('question', 'QuestionController', [
-        'except' => ['create', 'edit']
-    ]);
-
 });

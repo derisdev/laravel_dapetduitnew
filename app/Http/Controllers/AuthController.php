@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\User; 
 use App\Phone; 
 use App\Refferal; 
+use App\UserInfo; 
 
 use JWTAuth;
 use JWTAuthException;
@@ -14,6 +15,14 @@ use JWTAuthException;
 
 class AuthController extends Controller
 {
+    public function __construct() {
+        $this->middleware(
+            'jwt.auth',[
+                'only' => ['index']
+            ]);
+    }
+
+
     public function store(Request $request) {
         $this->validate($request, [
             'name' => 'required',
@@ -139,4 +148,24 @@ class AuthController extends Controller
 
         return response()->json($response, 404);
     }
+
+    public function index()
+    {
+        $userinfos = UserInfo::all();
+        foreach ($userinfos as $userinfo) {
+            $userinfo->view_userinfo = [
+                'href' => 'api/v1/userinfo/' . $userinfo ->id,
+                'method' => 'GET'
+            ];
+        }
+        
+
+        $response = [
+            'msg' => 'List of all userinfo',
+            'userinfo' => $userinfos
+        ];
+        
+        return response()->json($response, 200);
+    }
+
 }
