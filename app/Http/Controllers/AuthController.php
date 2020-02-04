@@ -45,12 +45,11 @@ class AuthController extends Controller
             'password' => $password
         ];
 
-            $refferal = Refferal::where('refferal', $refferal_input)->first();
             $recent_invited = Refferal::where('refferal', $refferal_input)->value('invited');
             $total_invited = $recent_invited+=1;
 
 
-           if ($refferal!=null) {
+           if ($refferal_input!=null) {
             if (!Refferal::where('refferal', $refferal_input)->update([
                 'invited' => $total_invited
                 ])) {
@@ -58,9 +57,46 @@ class AuthController extends Controller
                     'msg' => 'Error During Update, Refferal Not found',
                 ], 404);
             }
+            else {
+                if ($user->save()) {
+                    $token = null;
+        
+                    try {
+                        if(!$token = JWTAuth::Attempt($cridentials)) {
+                            return response()->json([
+                                'msg' => 'Email or Password incorrect',
+                            ], 404);
+                        }
+                    } catch (\JWTAuthException $e) {
+                        return response()->json([
+                            'msg' => 'failed_to_create_token',
+                        ], 400);
+                    }
+        
+                    $user->signin = [
+                        'href' => 'api/v1/user/signin',
+                        'method' => 'POST',
+                        'params' => 'email, password'
+                    ];
+        
+                    $response = [
+                        'msg' => 'User Created',
+                        'user' => $user,
+                        'token' => $token,
+                        'invited' => $total_invited
+                    ];
+                return response()->json($response, 201);
+                }
+    
+            $response = [
+                'msg' => 'An error occured'
+            ];
+    
+            return response()->json($response, 404);
+            }
 
            }
-
+           else {
             if ($user->save()) {
                 $token = null;
     
@@ -96,6 +132,9 @@ class AuthController extends Controller
         ];
 
         return response()->json($response, 404);
+           }
+
+            
 
         
     }

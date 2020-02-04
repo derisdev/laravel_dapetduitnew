@@ -97,11 +97,11 @@ class RewardsController extends Controller
         $rewards_refferal = $rewards*0.1;
         $refferal = $request-> input('refferal');
 
-        $id_refferal = Refferal::where('refferal', $refferal)->value('id');
+        $user_id = Refferal::where('refferal', $refferal)->value('user_id');
 
 
         $recent_rewards = Rewards::where('id', $id)->value('rewards');
-        $recent_rewards_refferal = Rewards::where('id', $id_refferal)->value('rewards');
+        $recent_rewards_refferal = Rewards::where('user_id', $user_id)->value('fromrefferal');
 
         $total_rewards = $recent_rewards+=$rewards;
         $total_rewards_refferal = $recent_rewards_refferal+=$rewards_refferal;
@@ -113,8 +113,8 @@ class RewardsController extends Controller
             return response()->json(['msg' => 'Error During Update'], 404);
         }
        
-        if (!Rewards::where('id', $id_refferal)->update([
-            'rewards' => $total_rewards_refferal
+        if (!Rewards::where('user_id', $user_id)->update([
+            'fromrefferal' => $total_rewards_refferal
             ])) {
             return response()->json(['msg' => 'Error During Update'], 404);
         }

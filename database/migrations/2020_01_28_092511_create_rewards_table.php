@@ -18,6 +18,7 @@ class CreateRewardsTable extends Migration
             $table->integer('user_id')->unsigned();
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->string('rewards');
+            $table->string('fromrefferal')->default('0');
             $table->timestamps();
         });
     }
