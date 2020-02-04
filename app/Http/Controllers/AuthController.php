@@ -7,7 +7,10 @@ use Illuminate\Http\Request;
 use App\User; 
 use App\Phone; 
 use App\Refferal; 
-use App\UserInfo; 
+use App\usertotal;  
+use App\HistoryRewards;  
+use App\Payment;  
+
 
 use JWTAuth;
 use JWTAuthException;
@@ -27,6 +30,12 @@ class AuthController extends Controller
         $this->validate($request, [
             'name' => 'required',
         ]);
+
+        $usertotal =  new usertotal;
+        $usertotal->total = 0;
+        $usertotal->save();
+
+
 
         $name = $request->input('name');
         $refferal_input = $request->input('refferal');
@@ -59,6 +68,11 @@ class AuthController extends Controller
             }
             else {
                 if ($user->save()) {
+
+                    $current = usertotal::where('id', 1)->value('total');
+                    usertotal::where('id', 1)->update([
+                        'total' => $current+=1
+                    ]);
                     $token = null;
         
                     try {
@@ -98,6 +112,13 @@ class AuthController extends Controller
            }
            else {
             if ($user->save()) {
+
+                $current = usertotal::where('id', 1)->value('total');
+                    usertotal::where('id', 1)->update([
+                        'total' => $current+=1
+                    ]);
+
+
                 $token = null;
     
                 try {
@@ -188,23 +209,56 @@ class AuthController extends Controller
         return response()->json($response, 404);
     }
 
-    public function index()
-    {
-        $userinfos = UserInfo::all();
-        foreach ($userinfos as $userinfo) {
-            $userinfo->view_userinfo = [
-                'href' => 'api/v1/userinfo/' . $userinfo ->id,
-                'method' => 'GET'
-            ];
-        }
-        
+    public function index() {
+        $users = User::with('phone')->with('refferal')->with('rewards')->get();
+
 
         $response = [
-            'msg' => 'List of all userinfo',
-            'userinfo' => $userinfos
+            'msg' => 'List User',
+            'user' => $users
         ];
-        
         return response()->json($response, 200);
+
+
+    }
+
+
+
+    public function total() {
+        $usertotal = usertotal::find(1);
+
+        $response = [
+            'msg' => 'User total',
+            'usertotal' => $usertotal
+        ];
+        return response()->json($response, 200);
+
+
+    }
+
+    
+    public function historyRewards($id) {
+        $historyRewards = HistoryRewards::where('user_id', $id)->get();
+
+        $response = [
+            'msg' => 'List History Rewards',
+            'user' => $historyRewards
+        ];
+        return response()->json($response, 200);
+
+
+    }
+    
+    public function historyPayment($phone) {
+        $historyPayment = Payment::where('phone', $phone)->get();
+
+        $response = [
+            'msg' => 'List History Payment',
+            'user' => $historyPayment
+        ];
+        return response()->json($response, 200);
+
+
     }
 
 }

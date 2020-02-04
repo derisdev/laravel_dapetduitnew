@@ -44,6 +44,10 @@ class User extends Authenticatable
         return $this->hasOne(Rewards::class)->withDefault();;
     }
 
+    public function historyrewards() {
+        return $this->hasMany(HistoryRewards::class)->withDefault();;
+    }
+
     /**
      * The attributes that should be cast to native types.
      *

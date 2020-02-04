@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\User;
 use App\Rewards;
 use App\Refferal;
+use App\HistoryRewards;
 
 
 class RewardsController extends Controller
@@ -89,15 +90,19 @@ class RewardsController extends Controller
     {
         $this->validate($request, [
             'rewards' => 'required',
-            'refferal' => 'required'
+            'refferal' => 'required',
+            'from' => 'required'
         ]);
 
 
         $rewards = $request-> input('rewards');
+        $from = $request-> input('from');
         $rewards_refferal = $rewards*0.1;
         $refferal = $request-> input('refferal');
 
         $user_id = Refferal::where('refferal', $refferal)->value('user_id');
+
+        $user_id_owner = Rewards::where('id', $id)->value('user_id');
 
 
         $recent_rewards = Rewards::where('id', $id)->value('rewards');
@@ -113,11 +118,16 @@ class RewardsController extends Controller
             return response()->json(['msg' => 'Error During Update'], 404);
         }
        
-        if (!Rewards::where('user_id', $user_id)->update([
+        Rewards::where('user_id', $user_id)->update([
             'fromrefferal' => $total_rewards_refferal
-            ])) {
-            return response()->json(['msg' => 'Error During Update'], 404);
-        }
+            ]);
+
+        $historyRewards = new HistoryRewards;
+        $historyRewards->user_id = $user_id_owner;
+        $historyRewards->rewards = $total_rewards;
+        $historyRewards->from = $from;
+
+        $historyRewards->save();
 
         $response = [
             'msg' => 'Rewards Updated',

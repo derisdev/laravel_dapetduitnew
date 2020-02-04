@@ -25,10 +25,24 @@ Route::group(['prefix' => 'v1', 'middleware' => 'cors'], function(){
     Route::post('/user/register', [
         'uses' => 'AuthController@store'
     ]);
-    
-    Route::post('/user/signin', [
-        'uses' => 'AuthController@signin'
+
+    Route::get('/user/total', [
+        'uses' => 'AuthController@total'
     ]);
+    
+    Route::get('/user/index', [
+        'uses' => 'AuthController@index'
+    ]);
+    
+    Route::get('/user/historyRewards/{id}', [
+        'uses' => 'AuthController@historyRewards'
+    ]);
+    
+    Route::get('/user/historyPayment/{phone}', [
+        'uses' => 'AuthController@historyPayment'
+    ]);
+    
+
     
     Route::post('/user/phone_verify', [
         'uses' => 'PhoneController@store'
